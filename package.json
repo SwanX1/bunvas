@@ -1,0 +1,27 @@
+{
+  "name": "bunvas",
+  "description": "A simple canvas for Bun, written in pure TypeScript",
+  "version": "0.1.0",
+  "author": {
+    "name": "Kārlis Čerņavskis",
+    "email": "karliscern@gmail.com",
+    "url": "https://cernavskis.dev/"
+  },
+  "private": false,
+  "license": "MIT",
+  "bugs": "https://github.com/SwanX1/bunvas/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SwanX1/bunvas.git"
+  },
+  "scripts": {
+    "test": "bun --bun run test/test.ts",
+    "benchmark": "bun --bun run test/bench.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.3"
+  }
+}
