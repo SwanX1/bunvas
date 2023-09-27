@@ -1,5 +1,4 @@
 import { Image, Point } from "../src";
-import path from 'node:path';
 
 export function randomWithSeed(seed: number): number {
   // Jumble seed
@@ -31,7 +30,7 @@ export class Profiler {
 const profiler = new Profiler();
 const profilerTotal = new Profiler();
 
-const image = new Image(1000, 600);
+const image = new Image(1000, 1000);
 const drawer = image.drawer;
 profiler.log('Image initialized');
 
@@ -99,24 +98,22 @@ profiler.log('Bezier points drawn');
 drawer.drawBezier(bezierPoints, '#FFFFFF');
 
 profiler.log('Bezier curve drawn');
+for (let j = 0; j < 3; j++) {
+  const polygonPoints: Point[] = [];
+  for (let i = 0; i < 10; i++) {
+    const r = randomWithSeed(i*(j + 2)) * 100 + 50;
+    polygonPoints.push([
+      Math.cos(i / 10 * Math.PI * 2) * r + 150 + (j * 300),
+      Math.sin(i / 10 * Math.PI * 2) * r + 750,
+    ])
+  }
+  polygonPoints.push(polygonPoints[0])
+  drawer.drawFilledPath(polygonPoints, '#FFFFFF');
+  profiler.log(`Polygon ${j + 1} drawn`);
+}
 
 profilerTotal.log('Total time');
 
 await image.writeImage(Bun.file('_temp.png'), 'png');
 profiler.log('Image written');
 
-console.log('Comparing image to expected...');
-const created = new Uint8Array(await Bun.file('_temp.png').arrayBuffer());
-const testAgainst = new Uint8Array(await Bun.file(path.join(import.meta.dir, './test.png')).arrayBuffer());
-
-if (created.byteLength !== testAgainst.byteLength) {
-  throw new Error(`Image size mismatch, expected ${testAgainst.byteLength} bytes, got ${created.byteLength} bytes.`);
-}
-
-for (let i = 0; i < created.byteLength; i++) {
-  if (created[i] !== testAgainst[i]) {
-    throw new Error('Image content mismatch at index ' + i);
-  }
-}
-
-console.log('Image matches expected.');

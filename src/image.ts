@@ -425,6 +425,50 @@ export class ImageDrawer {
     this.flush();
   }
 
+  public drawFilledPath(points: Point[], color: Color): void {
+    if (points.length < 3) {
+      throw new Error('Invalid points');
+    }
+
+    // scanline
+    const [, y0] = points.reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1])]);
+    const [, y1] = points.reduce((a, b) => [Math.max(a[0], b[0]), Math.max(a[1], b[1])]);
+
+    for (let y = y0; y <= y1; y++) {
+      const intersections: number[] = [];
+
+      for (let i = 0; i < points.length; i++) {
+        let [x1, y1] = points[i];
+        let [x2, y2] = points[(i + 1) % points.length];
+
+        if (y1 === y2) {
+          continue;
+        }
+
+        if (y1 > y2) {
+          [x1, y1, x2, y2] = [x2, y2, x1, y1];
+        }
+
+        if (y >= y1 && y < y2) {
+          intersections.push(x1 + (y - y1) * (x2 - x1) / (y2 - y1));
+        }
+      }
+
+      intersections.sort((a, b) => a - b);
+
+      for (let i = 0; i < intersections.length; i += 2) {
+        const xStart = intersections[i];
+        const xEnd = intersections[i + 1];
+
+        for (let x = Math.round(xStart); x <= Math.round(xEnd); x++) {
+          this.setPixel([x, y], color);
+        }
+      }
+    }
+
+    this.flush();
+  }
+
   public drawBezier(points: Point[], color: Color, step?: number): void {
     if (points.length < 2) {
       throw new Error('Invalid points');
